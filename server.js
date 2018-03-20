@@ -13,7 +13,7 @@ app.use(bodyParser.json());
 
 //connect to Mongoose
 const configDB = require("./config/database.js");
-mongoose.connect(process.env.OPENSHIFT_MONGODB_DB_URL + process.env.OPENSHIFT_APP_NAME,function(err){
+mongoose.connect(configDB.url,function(err){
     if (err) {
         console.log(err);
         process.exit();
