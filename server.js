@@ -12,8 +12,16 @@ app.use(bodyParser.json());
 
 
 //connect to Mongoose
+if(process.env.OPENSHIFT_MONGODB_DB_PASSWORD){
+  connection_string = process.env.OPENSHIFT_MONGODB_DB_USERNAME + ":" +
+  process.env.OPENSHIFT_MONGODB_DB_PASSWORD + "@" +
+  process.env.OPENSHIFT_MONGODB_DB_HOST + ':' +
+  process.env.OPENSHIFT_MONGODB_DB_PORT + '/' +
+  process.env.OPENSHIFT_APP_NAME;
+  config.db.mongo.url = connection_string;
+}
 const configDB = require("./config/database.js");
-mongoose.connect(configDB.url,function(err){
+mongoose.connect(connection_string,function(err){
     if (err) {
         console.log(err);
         process.exit();
