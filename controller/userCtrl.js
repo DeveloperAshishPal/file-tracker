@@ -1,46 +1,35 @@
 var User = require('./../model/User.js');
 var Admin = require('./../model/Admin.js');
-var randomToken = require('random-token').create('abcdefghijklmnopqrstuvwxzyABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789');
 
 // Display list of all users -- get
 var user_list = function (req, res) {
     var query = {};
-    if(req.body.token && req.body.token != ''){
-        var token = req.body.token
-        Admin.find({
-            'token': token,
-            is_admin: true
-        }).exec(function(err,adminData){
-            if(err){
-                return res.send('Internal Error');
-            }
-            if(adminData.length > 0){
-                User.find(query).exec(function(err,users){
+    User.find(query).exec(function(err,users){
                     if (err) throw err;
-                    
                     return res.send(users);
-                })    
-            }else{
-                return res.send('invalid token');    
-            }
-            
-        })
-    }else{
-        return res.send('No token found');
-    }
+    });
     
 };
 
 // Display detail page for a specific User -- get
 var user_detail = function (req, res) {
-    res.send('NOT IMPLEMENTED: Author detail: ' + req.params.id);
+    if(req.body.userId && req.body.userId != ''){
+        var userId = req.body.userId
+    }else{
+        return res.send('please input userID');
+    }
+    
+    User.find({
+        _id: userId
+    }).exec(function(err,user){
+        if(err) throw err;
+        return res.send(user);
+    });
+    
 };
 
 // register User in Database -- Post
 var register_user = function (req, res) {
-    // no token check
-    // add file 
-    // generate token 
     if (req.body.email && req.body.email != '') {
         var email = req.body.email
     } else {
@@ -66,22 +55,18 @@ var register_user = function (req, res) {
         var name = req.body.name
     }
 
-    var token = randomToken(16);
-    if(token != ''){
-        var newUser = new User({
+     var newUser = new User({
         "name": name,
         "email": email,
         "adhaar_no": adhaar,
         "password": password,
-        "token": token,
     });
 
     newUser.save(function (err, data) {
         if (err) throw err;
 
         res.send(data);
-    });    
-    }
+    });
     
 };
 
@@ -145,7 +130,32 @@ var forget_password = function (req, res) {
 
 // update user in database -- put
 var update_user = function (req, res) {
-    res.send('NOT IMPLEMENTED: Author detail: ' + req.params.id);
+    var query = {};
+    if(req.body.name && req.body.name != ''){
+        var query.name = req.body.name
+    }
+    
+    if(req.body.phone && req.body.phone != ''){
+        var query.phone = req.body.phone
+    }
+    
+    if(req.body.password && req.body.password != ''){
+        var query.password = req.body.password
+    }
+    
+//    var query = {
+//        "name": name,
+//        "phone": phone,
+//        "password":password
+//    }
+    console.log(query);
+//    User.update({
+//        
+//    },{
+//       $set 
+//    },function(err,data){
+//        
+//    });
 }
 
 // delete user in database --put
