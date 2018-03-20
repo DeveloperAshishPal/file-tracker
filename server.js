@@ -5,7 +5,7 @@ const mongoose = require('mongoose');
 const routes = require('./routes');
 
 const port = process.evn.OPENSHIFT_NODEJS_PORT || 8080;
-const ip = process.evn.OPENSHIFT_NODEJS_IP || 127.0.0.1;
+const ip = process.evn.OPENSHIFT_NODEJS_IP || process.env.IP;
 
 //app.use(express.static(__dirname + '/client'));
 app.use(bodyParser.json());
