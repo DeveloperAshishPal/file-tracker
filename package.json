@@ -1,0 +1,17 @@
+{
+  "name": "file_status",
+  "version": "1.0.0",
+  "description": "file tracking system",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "author": "code ranger",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.18.2",
+    "express": "^4.16.2",
+    "mongoose": "^5.0.9",
+    "random-token": "^0.0.8"
+  }
+}
