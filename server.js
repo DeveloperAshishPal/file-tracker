@@ -17,7 +17,7 @@ mongoose.connect(configDB.url,function(err){
 const db = mongoose.connection;
 
 //  Connect all our routes to our application
-app.use('/api', routes);
+app.use('/', routes);
 
 app.listen(3000);
 console.log("server started on port " + 3000);

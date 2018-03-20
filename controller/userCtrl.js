@@ -3,29 +3,34 @@ var Admin = require('./../model/Admin.js');
 
 // Display list of all users -- get
 var user_list = function (req, res) {
-    var query = {};
-    User.find(query).exec(function(err,users){
-                    if (err) throw err;
-                    return res.send(users);
+    var query = {
+        is_delete: false,
+        is_status: true
+    };
+    User.find(query).exec(function (err, users) {
+        if (err) throw err;
+        return res.send(users);
     });
-    
+
 };
 
 // Display detail page for a specific User -- get
 var user_detail = function (req, res) {
-    if(req.body.userId && req.body.userId != ''){
+    if (req.body.userId && req.body.userId != '') {
         var userId = req.body.userId
-    }else{
+    } else {
         return res.send('please input userID');
     }
-    
+
     User.find({
-        _id: userId
-    }).exec(function(err,user){
-        if(err) throw err;
+        _id: userId,
+        is_status: true,
+        is_delete: false
+    }).exec(function (err, user) {
+        if (err) throw err;
         return res.send(user);
     });
-    
+
 };
 
 // register User in Database -- Post
@@ -55,7 +60,7 @@ var register_user = function (req, res) {
         var name = req.body.name
     }
 
-     var newUser = new User({
+    var newUser = new User({
         "name": name,
         "email": email,
         "adhaar_no": adhaar,
@@ -67,7 +72,7 @@ var register_user = function (req, res) {
 
         res.send(data);
     });
-    
+
 };
 
 // login user --put
@@ -111,16 +116,16 @@ var forget_password = function (req, res) {
         'email': email
     }).exec(function (err, data) {
         var randomPassword = randomToken(8);
-        
+
         User.update({
-            'password':randomPassword
-        }).exec(function(err){
-           if(err){
-               return res.send('Server Error Please try again');
-           } 
-            
+            'password': randomPassword
+        }).exec(function (err) {
+            if (err) {
+                return res.send('Server Error Please try again');
+            }
+
             // mail code 
-            
+
             return res.send('Please Check your mail for further process');
         });
 
@@ -130,47 +135,82 @@ var forget_password = function (req, res) {
 
 // update user in database -- put
 var update_user = function (req, res) {
+
+    if (req.body._id && req.body._id != '') {
+        var userId = req.body._id;
+    } else {
+        return res.send('please enter user id')
+    }
+
     var query = {};
-    if(req.body.name && req.body.name != ''){
-        var query.name = req.body.name
+    if (req.body.name && req.body.name != '') {
+        query["name"] = req.body.name
     }
-    
-    if(req.body.phone && req.body.phone != ''){
-        var query.phone = req.body.phone
+
+    if (req.body.phone && req.body.phone != '') {
+        query["phone"] = req.body.phone
     }
-    
-    if(req.body.password && req.body.password != ''){
-        var query.password = req.body.password
+
+    if (req.body.password && req.body.password != '') {
+        query["password"] = req.body.password
     }
-    
-//    var query = {
-//        "name": name,
-//        "phone": phone,
-//        "password":password
-//    }
-    console.log(query);
-//    User.update({
-//        
-//    },{
-//       $set 
-//    },function(err,data){
-//        
-//    });
+
+    User.update({
+        _id: userId
+    }, {
+        $set: query
+    }, function (err, data) {
+        if (err) throw err;
+        res.send(data);
+    });
 }
 
 // delete user in database --put
 var delete_user = function (req, res) {
-    res.send('NOT IMPLEMENTED: Author detail: ' + req.params.id);
+    if (req.body._id && req.body._id != '') {
+        var userId = req.body._id;
+    } else {
+        return res.send('please enter user id')
+    }
+
+    User.update({
+        _id: userId
+    }, {
+        $set: {
+            is_delete: true
+        }
+    }, function (err, data) {
+        if (err) throw err;
+        res.send(data);
+    });
 }
 
 // user count in database -- get
 var user_count = function (req, res) {
-    res.send('NOT IMPLEMENTED: Author detail: ' + req.params.id);
+    User.count({}, function (err, count) {
+        if (err) throw err;
+        res.send('count is '+count);
+    });
 }
 
 // block user in database --put
 var block_user = function (req, res) {
-    res.send('NOT IMPLEMENTED: Author detail: ' + req.params.id);
+    if (req.body._id && req.body._id != '') {
+        var userId = req.body._id;
+    } else {
+        return res.send('please enter user id')
+    }
+
+    User.update({
+        _id: userId
+    }, {
+        $set: {
+            is_status: false
+        }
+    }, function (err, data) {
+        if (err) throw err;
+        res.send(data);
+    });
 }
 
 module.exports = {
