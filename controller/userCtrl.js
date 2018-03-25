@@ -1,5 +1,6 @@
 var User = require('./../model/User.js');
 var Admin = require('./../model/Admin.js');
+var randomToken = require('random-token').create('abcdefghijklmnopqrstuvwxzyABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789');
 
 // Display list of all users -- get
 var user_list = function (req, res) {

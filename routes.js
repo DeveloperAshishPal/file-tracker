@@ -80,7 +80,7 @@ routes.post('/api/file/add',fileController.addFile);
 routes.put('/api/file/update',fileController.updateFile);
 
 /* read files with filtering options*/
-routes.put('/api/file/all',fileController.fileList);
+routes.put('/api/file/list',fileController.fileList);
 
 /* read file detail */
 routes.put('/api/file/detail',fileController.fileDetail);

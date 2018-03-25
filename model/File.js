@@ -12,7 +12,7 @@ var historySchema = new Schema({
         required: true
     },
     date : {
-        type: Date,
+        type: String,
         required: true
     },
     status : {
@@ -21,7 +21,7 @@ var historySchema = new Schema({
         required: true,
         default: 'recieved'
     }
-});
+},{ _id : false });
 
 // create a schema
 var fileSchema = new Schema({
@@ -41,7 +41,7 @@ var fileSchema = new Schema({
         type: [historySchema],
         required: false
     },
-    qrCode : {
+    fileId : {
         type: String,
         required: true,
         unique: true
@@ -59,12 +59,12 @@ var fileSchema = new Schema({
     created_at: {
         type: Date,
         required: true,
-        default: true
+        default: Date.now()
     },
     updated_at: {
         type: Date,
         required: true,
-        default: true
+        default: Date.now()
     }
 });
 

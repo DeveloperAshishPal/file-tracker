@@ -3,19 +3,44 @@ var randomToken = require('random-token').create('abcdefghijklmnopqrstuvwxzyABCD
 
 // Display list of all -- get
 var list = function(req, res) {
-    res.send('NOT IMPLEMENTED: Author list');
+    if(typeof(req.body.isAdmin) === Boolean){
+        var isAdmin = req.body.isAdmin
+    }else{
+        var isAdmin = false
+    }
+    
+    var query = {
+        is_delete: false,
+        is_status: true,
+        is_admin: isAdmin
+    };
+    Admin.find(query).exec(function (err, staffs) {
+        if (err) throw err;
+        return res.send(staffs);
+    });
 };
 
 // Display detail -- get
 var detail = function(req, res) {
-    res.send('NOT IMPLEMENTED: Author detail: ' + req.params.id);
+    if (req.body.staffId && req.body.staffId != '') {
+        var staffId = req.body.staffId
+    } else {
+        return res.send('please input StaffId');
+    }
+
+    Admin.find({
+        _id: staffId,
+        is_status: true,
+        is_delete: false
+    }).exec(function (err, staff) {
+        if (err) throw err;
+        return res.send(staff);
+    });
 };
 
 // Add -- Post
 var addAdmin = function(req,res) {
-    // no token check
-    // add file 
-    // generate token 
+    
     if (req.body.email && req.body.email != '') {
         var email = req.body.email
     } else {
@@ -63,8 +88,6 @@ var addAdmin = function(req,res) {
         var name = req.body.name
     }
 
-    var token = randomToken(16);
-
     var newAdmin = new Admin({
         "name": name,
         "email": email,
@@ -73,7 +96,6 @@ var addAdmin = function(req,res) {
         "dept_id":dept_id,
         "dept_loc": dept_loc,
         "dept_name":dept_name,
-        "token": token,
         "is_admin":is_admin
     });
 
@@ -114,31 +136,128 @@ var login = function(req,res) {
 }
 
 var forget_password =function (req,res){
-    res.send('NOT IMPLEMENTED: Author detail: ' + req.params.id);
+    if (req.body.email && req.body.email != '') {
+        var email = req.body.email
+    } else {
+        return res.send('please input email');
+    }
+
+    Admin.find({
+        'email': email
+    }).exec(function (err, data) {
+        var randomPassword = randomToken(8);
+
+        Admin.update({
+            'password': randomPassword
+        }).exec(function (err) {
+            if (err) {
+                return res.send('Server Error Please try again');
+            }
+
+            // mail code 
+
+            return res.send('Please Check your mail for further process');
+        });
+
+    })
 }
 
 // update  -- put
 var updateAdmin = function(req,res){
-    res.send('NOT IMPLEMENTED: Author detail: ' + req.params.id);
+    if (req.body._id && req.body._id != '') {
+        var staffId = req.body._id;
+    } else {
+        return res.send('please enter staff id')
+    }
+
+    var query = {};
+    if (req.body.name && req.body.name != '') {
+        query["name"] = req.body.name
+    }
+
+    if (req.body.phone && req.body.phone != '') {
+        query["phone"] = req.body.phone
+    }
+
+    if (req.body.password && req.body.password != '') {
+        query["password"] = req.body.password
+    }
+
+    Admin.update({
+        _id: staffId
+    }, {
+        $set: query
+    }, function (err, data) {
+        if (err) throw err;
+        res.send(data);
+    });
 }
 
 // delete  --put
 var deleteOfficer = function(req,res){
-    res.send('NOT IMPLEMENTED: Author detail: ' + req.params.id);
+    if (req.body._id && req.body._id != '') {
+        var staffId = req.body._id;
+    } else {
+        return res.send('please enter staff id')
+    }
+
+    Admin.update({
+        _id: staffId
+    }, {
+        $set: {
+            is_delete: true
+        }
+    }, function (err, data) {
+        if (err) throw err;
+        res.send(data);
+    });
 }
 
 // count in database -- get
 var count = function(req,res){
-    res.send('NOT IMPLEMENTED: Author detail: ' + req.params.id);
+    Admin.count({}, function (err, count) {
+        if (err) throw err;
+        res.send('count is '+count);
+    });
 }
 
 // block  --put
 var block = function(req,res){
-    res.send('NOT IMPLEMENTED: Author detail: ' + req.params.id);
+    if (req.body._id && req.body._id != '') {
+        var staffId = req.body._id;
+    } else {
+        return res.send('please enter staff id')
+    }
+
+    Admin.update({
+        _id: staffId
+    }, {
+        $set: {
+            is_status: false
+        }
+    }, function (err, data) {
+        if (err) throw err;
+        res.send(data);
+    });
 }
 
 var upgradeToAdmin = function(req,res){
-    res.send('NOT IMPLEMENTED: Author detail: ' + req.params.id);
+    if (req.body._id && req.body._id != '') {
+        var staffId = req.body._id;
+    } else {
+        return res.send('please enter staff id')
+    }
+
+    Admin.update({
+        _id: staffId
+    }, {
+        $set: {
+            is_admin: true
+        }
+    }, function (err, data) {
+        if (err) throw err;
+        res.send(data);
+    });
 }
 
 
