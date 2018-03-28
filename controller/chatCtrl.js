@@ -2,26 +2,24 @@ var Chat = require('./../model/Chat.js');
 
 // File list -- get
 var chatList = function(req, res) {
-    res.send('NOT IMPLEMENTED: Author list');
+    // list of files
+    // fileId
+    
 };
 
 // File Detail -- get
 var chatDetail = function(req, res) {
-    res.send('NOT IMPLEMENTED: Author detail: ' + req.params.id);
+    // list of officer 
+    // officerId 
 };
 
 // Add File -- Post
-var addChat = function(req,res) {
-    res.send('NOT IMPLEMENTED: Author detail: ' + req.params.id);
+var commentChat = function(req,res) {
+    // this will be for user
 };
 
-// Delete File --put
-var deleteChat = function(req,res){
-    res.send('NOT IMPLEMENTED: Author detail: ' + req.params.id);
-}
-
 var replyChat = function(req,res){
-    res.send('NOT IMPLEMENTED: Author detail: ' + req.params.id);
+    // this will be for admin
 }
 
 

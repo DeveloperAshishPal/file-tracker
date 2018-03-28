@@ -6,6 +6,26 @@ var adminController = require('./controller/adminCtrl.js')
 var fileController = require('./controller/fileCtrl.js')
 var chatController = require('./controller/chatCtrl.js')
 var complaintController = require('./controller/complaintCtrl.js')
+var jwtoken = require('./plugins/jwToken.js')
+var jsend = require('./plugins/jsend.js')
+
+// middleware for token check
+routes.use(function(req, res, next) {
+  if (req.path == '/api/user/login' || req.path == '/api/user/register' || req.path == '/api/admin/login' || req.path == '/api/user/forget-password' || req.path == '/api/admin/forget-password') {
+    next();
+  } else {
+    if (req.body.token && req.body.token != "") {
+      var token = req.body.token;
+      if (jwtoken.validateToken(req, res).length > 1) {
+        next();
+      } else {
+        return res.send(jsend.failure("Token expired"))
+      }
+    } else {
+      return res.send(jsend.failure("No token Found"));
+    }
+  }
+});
 
 ///////////////// user routes ///////////////////////
 
@@ -34,7 +54,7 @@ routes.put('/api/user/detail',userController.userDetail);
 routes.put('/api/user/count',userController.userCount);
 
 /* Block User */
-routes.put('/api/user/block',userController.blockUser);
+routes.put('/api/user/status',userController.statusUser);
 
 
 //////////////// admin routes ////////////////////

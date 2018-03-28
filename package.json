@@ -4,14 +4,20 @@
   "description": "file tracking system",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "nodemon server.js"
   },
   "author": "code ranger",
   "license": "ISC",
   "dependencies": {
     "body-parser": "^1.18.2",
+    "dotenv": "^5.0.1",
+    "ejs": "^2.5.8",
     "express": "^4.16.2",
+    "jsonwebtoken": "^8.2.0",
+    "machinepack-passwords": "^2.3.0",
     "mongoose": "^5.0.9",
+    "nodemailer": "^4.6.3",
+    "nodemon": "^1.17.2",
     "random-token": "^0.0.8"
   }
 }

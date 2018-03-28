@@ -27,6 +27,14 @@ var adminSchema = new Schema({
         enum: ['head', 'clerk'],
         default: 'clerk'
     },
+    token:{
+        type: String,
+        required: false
+    },
+    updateCode:{
+        type: String,
+        required: false
+    },
     email: {
         type: String,
         required: true,

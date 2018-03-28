@@ -2,6 +2,27 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
+var talkSchema = new Schema({
+    comment: {
+        type: String,
+        required: false
+    },
+    reply:{
+        type: String,
+        required: false
+    }
+})
+
+var officerSchema = new Schema({
+    officerId:{
+        type: String,
+        required: false
+    },
+    chats:{
+        type:[talkSchema],
+        required: false
+    }
+});
 
 // create a schema
 var chatSchema = new Schema({
@@ -13,17 +34,9 @@ var chatSchema = new Schema({
         type: Schema.Types.ObjectId,
         required: true
     },
-    officerId: {
-        type: Schema.Types.ObjectId,
-        required: true
-    },
-    comment:{
-      type: String,
-      required: true
-    },
-    reply:{
-      type: String,
-      required: true
+    officers: {
+        type: [officerSchema],
+        required: false
     },
     is_status:{
         type: Boolean,
@@ -38,12 +51,12 @@ var chatSchema = new Schema({
     created_at: {
         type: Date,
         required: true,
-        default: true
+        default: Date.now
     },
     updated_at: {
         type: Date,
         required: true,
-        default: true
+        default: Date.now
     }
 });
 

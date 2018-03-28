@@ -26,6 +26,14 @@ var userSchema = new Schema({
         type: String,
         required: false
     },
+    token:{
+        type: String,
+        required: false
+    },
+    updateCode:{
+        type: String,
+        required: false
+    },
     is_status: {
         type: Boolean,
         required: true,

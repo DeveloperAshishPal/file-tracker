@@ -1,6 +1,9 @@
 var User = require('./../model/User.js');
 var Admin = require('./../model/Admin.js');
-var randomToken = require('random-token').create('abcdefghijklmnopqrstuvwxzyABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789');
+var randomToken = require('random-token').create('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789');
+var Passwords = require('machinepack-passwords');
+var jwtoken = require('./../plugins/jwToken.js');
+var transporter = require('./../plugins/email.js');
 
 // Display list of all users -- get
 var user_list = function (req, res) {
@@ -61,17 +64,46 @@ var register_user = function (req, res) {
         var name = req.body.name
     }
 
-    var newUser = new User({
-        "name": name,
-        "email": email,
-        "adhaar_no": adhaar,
-        "password": password,
-    });
+    var updateCode = randomToken(6);
 
-    newUser.save(function (err, data) {
-        if (err) throw err;
+    Passwords.encryptPassword({
+        password: password,
+    }).exec({
+        // An unexpected error occurred.
+        error: function (err) {
+            // send appropiate response
+            // add it also into logger
+        },
+        // OK.
+        success: function (encryptedPassword) {
+            var newUser = new User({
+                "name": name,
+                "email": email,
+                "adhaar_no": adhaar,
+                "password": encryptedPassword,
+                "updateCode": updateCode,
+                "is_status": false
+            });
 
-        res.send(data);
+            newUser.save(function (err, data) {
+                if (err) throw err;
+
+                const mailOptions = {
+                    from: 'filestatus@gmail.com', // sender address
+                    to: data[0].email, // list of receivers
+                    subject: 'Confirmation Code', // Subject line
+                    html: '<p>Your Confirmation Code is ' + data[0].updateCode + '</p>' // plain text body
+                };
+
+                transporter.sendMail(mailOptions, function (err, info) {
+                    if (err) {
+                        console.log(err)
+                    } else {
+                        res.send(data);
+                    }
+                });
+            });
+        }
     });
 
 };
@@ -97,12 +129,39 @@ var login_user = function (req, res) {
         if (err) {
             return res.send('No user found with ' + email);
         }
-        if (password === data[0].password) {
-            return res.send(data);
-        } else {
-            return res.send('Incorrect password');
-        }
 
+        Passwords.checkPassword({
+            passwordAttempt: password,
+            encryptedPassword: data[0].password,
+        }).exec({
+            // An unexpected error occurred.
+            error: function (err) {
+                // set appropiate response 
+                // add into log
+            },
+            // Password attempt does not match already-encrypted version
+            incorrect: function () {
+                return res.send('Incorrect password');
+            },
+            // OK.
+            success: function () {
+                var token = jwtoken.generateToken(req);
+
+                User.update({
+                    '_id': data[0]._id
+                }, {
+                    $set: {
+                        'token': token
+                    }
+                }, function (err) {
+                    if (err) {
+                        // send a response
+                    }
+
+                    return res.send(data);
+                });
+            }
+        });
     });
 }
 
@@ -116,20 +175,40 @@ var forget_password = function (req, res) {
     User.find({
         'email': email
     }).exec(function (err, data) {
-        var randomPassword = randomToken(8);
 
+        if (err) {
+            logger.error(err);
+            res.send(jsend.failure("System Internal Error"));
+        }
+
+        var updateCode = randomToken(8);
         User.update({
-            'password': randomPassword
-        }).exec(function (err) {
+            '_id': data[0]._id
+        }, {
+            $set: {
+                'updateCode': code
+            }
+        }, function (err) {
             if (err) {
-                return res.send('Server Error Please try again');
+                // hardik will handle
             }
 
             // mail code 
+            const mailOptions = {
+                from: 'filestatus@gmail.com', // sender address
+                to: data[0].email, // list of receivers
+                subject: 'Password Change Request', // Subject line
+                html: '<p>Please click on the link to change your password <a href="' + req.headers.host + '/reset/user/' + code +'">Change Password</a> </p> ' // plain text body
+            };
 
-            return res.send('Please Check your mail for further process');
+            transporter.sendMail(mailOptions, function (err, info) {
+                if (err) {
+                    console.log(err)
+                }
+                return res.send('Please Check your mail for further process');
+
+            });
         });
-
     })
 
 }
@@ -190,28 +269,54 @@ var delete_user = function (req, res) {
 var user_count = function (req, res) {
     User.count({}, function (err, count) {
         if (err) throw err;
-        res.send('count is '+count);
+        res.send('count is ' + count);
     });
 }
 
 // block user in database --put
-var block_user = function (req, res) {
-    if (req.body._id && req.body._id != '') {
-        var userId = req.body._id;
+var status_user = function (req, res) {
+    if (req.body.code && req.body.code != '') {
+        var code = req.body.code;
     } else {
-        return res.send('please enter user id')
+        return res.send('please enter user code')
     }
 
-    User.update({
-        _id: userId
-    }, {
-        $set: {
-            is_status: false
+    User.find({
+        code: code
+    }).exec(function (err, data) {
+        if (err) {
+
         }
-    }, function (err, data) {
-        if (err) throw err;
-        res.send(data);
+
+        if (data.length > 0) {
+            User.update({
+                _id: data[0]._id
+            }, {
+                $set: {
+                    is_status: true
+                }
+            }, function (err) {
+                if (err) throw err;
+
+                const mailOptions = {
+                    from: 'filestatus@gmail.com', // sender address
+                    to: data[0].email, // list of receivers
+                    subject: 'Welcome', // Subject line
+                    html: '<p>Welcome To File Status <br> Email: ' + data[0].updateCode + ' <br> Name: ' + data[0].name + ' <br><br> Regards <br> Admin</p>' // plain text body
+                };
+
+                transporter.sendMail(mailOptions, function (err, info) {
+                    if (err) {
+                        console.log(err)
+                    } else {
+                        res.send(data);
+                    }
+                });
+            });
+        }
     });
+
+
 }
 
 module.exports = {
@@ -223,5 +328,5 @@ module.exports = {
     "updateUser": update_user,
     "deleteUser": delete_user,
     "userCount": user_count,
-    "blockUser": block_user
+    "statusUser": status_user
 }
