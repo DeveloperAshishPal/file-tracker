@@ -92,7 +92,7 @@ var register_user = function (req, res) {
                     from: 'filestatus@gmail.com', // sender address
                     to: data.email, // list of receivers
                     subject: 'Confirmation Code', // Subject line
-                    html: '<p>Your Confirmation Code is ' + data[0].updateCode + '</p>' // plain text body
+                    html: '<p>Your Confirmation Code is ' + data.updateCode + '</p>' // plain text body
                 };
 
                 transporter.sendMail(mailOptions, function (err, info) {
