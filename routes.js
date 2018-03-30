@@ -120,11 +120,11 @@ routes.put('/api/chat/list', chatController.chatList);
 
 routes.put('/api/chat/detail', chatController.chatDetail);
 
-routes.post('/api/chat/add', chatController.addChat);
+routes.post('/api/chat/comment', chatController.commentChat);
 
 routes.put('/api/chat/reply', chatController.replyChat);
 
-routes.put('/api/chat/delete', chatController.deleteChat);
+//routes.put('/api/chat/delete', chatController.deleteChat);
 
 ////////////////////////// complaint routes ///////////////////////////
 

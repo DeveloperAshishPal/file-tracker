@@ -91,7 +91,7 @@ var addFile = function (req, res) {
 
     newFile.save(function (err, saveData) {
         if (err) throw err;
-
+        console.log(saveData);
         return res.send(saveData);
     });
 

@@ -18,8 +18,12 @@ var officerSchema = new Schema({
         type: String,
         required: false
     },
-    chats:{
-        type:[talkSchema],
+    comment: {
+        type: String,
+        required: false
+    },
+    reply:{
+        type: String,
         required: false
     }
 });
