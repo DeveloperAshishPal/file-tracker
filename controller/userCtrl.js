@@ -90,7 +90,7 @@ var register_user = function (req, res) {
 
                 const mailOptions = {
                     from: 'filestatus@gmail.com', // sender address
-                    to: data[0].email, // list of receivers
+                    to: data.email, // list of receivers
                     subject: 'Confirmation Code', // Subject line
                     html: '<p>Your Confirmation Code is ' + data[0].updateCode + '</p>' // plain text body
                 };
