@@ -26,7 +26,6 @@ var replyChat = function(req,res){
 module.exports = {
     "chatList" : chatList,
     "chatDetail": chatDetail,
-    "addChat": addChat,
-    "deleteChat": deleteChat,
+    "commentChat": commentChat,
     "replyChat": replyChat
 }
