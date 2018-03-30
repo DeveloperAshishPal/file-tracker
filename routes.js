@@ -11,7 +11,7 @@ var jsend = require('./plugins/jsend.js')
 
 // middleware for token check
 routes.use(function(req, res, next) {
-  if (req.path == '/api/user/login' || req.path == '/api/user/register' || req.path == '/api/admin/login' || req.path == '/api/user/forget-password' || req.path == '/api/admin/forget-password') {
+  if (req.path == '/api/user/login' || req.path == '/api/user/register' || req.path == '/api/admin/login' || req.path == '/api/admin/add' || req.path == '/api/user/forget-password' || req.path == '/api/admin/forget-password') {
     next();
   } else {
     if (req.body.token && req.body.token != "") {

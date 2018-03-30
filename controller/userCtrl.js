@@ -4,6 +4,7 @@ var randomToken = require('random-token').create('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123
 var Passwords = require('machinepack-passwords');
 var jwtoken = require('./../plugins/jwToken.js');
 var transporter = require('./../plugins/email.js');
+var jsend = require('./../plugins/jsend.js');
 
 // Display list of all users -- get
 var user_list = function (req, res) {
@@ -66,46 +67,62 @@ var register_user = function (req, res) {
 
     var updateCode = randomToken(6);
 
-    Passwords.encryptPassword({
-        password: password,
-    }).exec({
-        // An unexpected error occurred.
-        error: function (err) {
-            // send appropiate response
-            // add it also into logger
-        },
-        // OK.
-        success: function (encryptedPassword) {
-            var newUser = new User({
-                "name": name,
-                "email": email,
-                "adhaar_no": adhaar,
-                "password": encryptedPassword,
-                "updateCode": updateCode,
-                "is_status": false
-            });
+    User.find({
+        "adhaar_no": adhaar,
+        "email": email
+    }).exec(function (err, data) {
+        console.log(data);
 
-            newUser.save(function (err, data) {
-                if (err) throw err;
+        if (data.length > 0) {
+            if(data[0].adhaar_no == adhaar){
+                res.send(jsend.failure("duplicate adhaar no"));
+            }
+            
+            if(data[0].email == email){
+                res.send(jsend.failure("duplicate email"));
+            }
+        } else {
+            Passwords.encryptPassword({
+                password: password,
+            }).exec({
+                // An unexpected error occurred.
+                error: function (err) {
+                    // send appropiate response
+                    // add it also into logger
+                },
+                // OK.
+                success: function (encryptedPassword) {
+                    var newUser = new User({
+                        "name": name,
+                        "email": email,
+                        "adhaar_no": adhaar,
+                        "password": encryptedPassword,
+                        "updateCode": updateCode,
+                        "is_status": false
+                    });
 
-                const mailOptions = {
-                    from: 'filestatus@gmail.com', // sender address
-                    to: data.email, // list of receivers
-                    subject: 'Confirmation Code', // Subject line
-                    html: '<p>Your Confirmation Code is ' + data.updateCode + '</p>' // plain text body
-                };
+                    newUser.save(function (err, data) {
+                        if (err) throw err;
 
-                transporter.sendMail(mailOptions, function (err, info) {
-                    if (err) {
-                        console.log(err)
-                    } else {
-                        res.send(data);
-                    }
-                });
+                        const mailOptions = {
+                            from: 'filestatus@gmail.com', // sender address
+                            to: data.email, // list of receivers
+                            subject: 'Confirmation Code', // Subject line
+                            html: '<p>Your Confirmation Code is <B>' + data.updateCode + '</b> </p>' // plain text body
+                        };
+
+                        transporter.sendMail(mailOptions, function (err, info) {
+                            if (err) {
+                                console.log(err)
+                            } else {
+                                res.send(jsend.success("please check mail",data));
+                            }
+                        });
+                    });
+                }
             });
         }
-    });
-
+    })
 };
 
 // login user --put
@@ -198,7 +215,7 @@ var forget_password = function (req, res) {
                 from: 'filestatus@gmail.com', // sender address
                 to: data[0].email, // list of receivers
                 subject: 'Password Change Request', // Subject line
-                html: '<p>Please click on the link to change your password <a href="' + req.headers.host + '/reset/user/' + code +'">Change Password</a> </p> ' // plain text body
+                html: '<p>Please click on the link to change your password <a href="' + req.headers.host + '/reset/user/' + code + '">Change Password</a> </p> ' // plain text body
             };
 
             transporter.sendMail(mailOptions, function (err, info) {
