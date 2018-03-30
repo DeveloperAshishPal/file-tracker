@@ -1,6 +1,6 @@
 {
   "environment":"development",
-  "port":4096,
+  "port":80,
   "emailConfig":{
        "host": "smtp.gmail.com",
        "port": 465,

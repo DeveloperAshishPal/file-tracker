@@ -9,14 +9,14 @@ const reset = require('./controller/resetPassword.js')
 app.use(express.static(__dirname + '/client'));
 app.use(bodyParser.json());
 
-const configDB = require("./config/database.js");
-mongoose.connect(configDB.url,function(err){
-    if (err) {
-        console.log(err);
-        process.exit();
-    };
-});
-const db = mongoose.connection;
+ const configDB = require("./config/database.js");
+ mongoose.connect(configDB.url,function(err){
+     if (err) {
+         console.log(err);
+         process.exit();
+     };
+ });
+ const db = mongoose.connection;
 
 app.set('views', './views')
 app.set('view engine', 'ejs')

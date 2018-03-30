@@ -124,7 +124,6 @@ routes.post('/api/chat/comment', chatController.commentChat);
 
 routes.put('/api/chat/reply', chatController.replyChat);
 
-//routes.put('/api/chat/delete', chatController.deleteChat);
 
 ////////////////////////// complaint routes ///////////////////////////
 
